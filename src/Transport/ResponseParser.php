@@ -368,7 +368,7 @@ class ResponseParser
                 default:
                     $j += 1;
                     $this->body[$j]['attributes'] = sprintf(
-                      _('0x%x (%u) : attributes tag Unknown (reserved for future versions of IPP'),
+                      '0x%x (%u) : attributes tag Unknown (reserved for future versions of IPP',
                       $tag,
                       $tag
                     );
@@ -413,7 +413,7 @@ class ResponseParser
                     } else {
                         $this->collectionNbr[$this->collectionDepth] = 0;
                     }
-                    unset($this->endCollection);
+                    $this->endCollection = false;
 
                 }
                 $this->readValue($attributes_type, $j);

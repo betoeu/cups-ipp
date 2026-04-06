@@ -2,7 +2,6 @@
 
 namespace Smalot\Cups\Manager;
 
-use Http\Client\HttpClient;
 use Smalot\Cups\Builder\Builder;
 use Smalot\Cups\CupsException;
 use Smalot\Cups\Model\Job;

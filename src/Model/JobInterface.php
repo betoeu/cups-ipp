@@ -125,20 +125,21 @@ interface JobInterface
 
     /**
      * @param string $filename
-     * @param string $mimeType
      * @param string $name
+     * @param string|null $mimeType
      *
      * @return JobInterface
      */
-    public function addFile($filename, $mimeType = 'application/octet-stream', $name = '');
+    public function addFile($filename, $name = '', $mimeType = null);
 
     /**
      * @param string $text
      * @param string $name
+     * @param string $mimeType
      *
      * @return JobInterface
      */
-    public function addText($text, $name = '');
+    public function addText($text, $name = '', $mimeType = 'text/plain');
 
     /**
      * @return array
