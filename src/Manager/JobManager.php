@@ -28,11 +28,11 @@ class JobManager extends ManagerAbstract
      * @return \Smalot\Cups\Model\JobInterface[]
      */
     public function getList(
-      PrinterInterface $printer,
-      $myJobs = true,
-      $limit = 0,
-      $whichJobs = 'not-completed',
-      $subset = false
+        PrinterInterface $printer,
+        $myJobs = true,
+        $limit = 0,
+        $whichJobs = 'not-completed',
+        $subset = false
     ) {
         $request = $this->prepareGetListRequest($printer, $myJobs, $limit, $whichJobs, $subset);
         $response = $this->client->sendRequest($request);
@@ -224,11 +224,11 @@ class JobManager extends ManagerAbstract
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function prepareGetListRequest(
-      PrinterInterface $printer,
-      $myJobs = true,
-      $limit = 0,
-      $whichJobs = 'not-completed',
-      $subset = false
+        PrinterInterface $printer,
+        $myJobs = true,
+        $limit = 0,
+        $whichJobs = 'not-completed',
+        $subset = false
     ) {
         $operationId = $this->buildOperationId();
         $charset = $this->buildCharset();
@@ -250,23 +250,23 @@ class JobManager extends ManagerAbstract
         }
 
         $content = $this->getVersion() // 1.1  | version-number
-          .chr(0x00).chr(0x0A) // Get-Jobs | operation-id
-          .$operationId //           request-id
-          .chr(0x01) // start operation-attributes | operation-attributes-tag
-          .$charset
-          .$language
-          .$username
-          .$printerUri
-          .$metaLimit
-          .$metaWhichJobs
-          .$metaMyJobs;
+            . chr(0x00) . chr(0x0A) // Get-Jobs | operation-id
+            . $operationId //           request-id
+            . chr(0x01) // start operation-attributes | operation-attributes-tag
+            . $charset
+            . $language
+            . $username
+            . $printerUri
+            . $metaLimit
+            . $metaWhichJobs
+            . $metaMyJobs;
 
         if ($subset) {
             $attributesGroup = [
-              'job-uri',
-              'job-name',
-              'job-state',
-              'job-state-reason',
+                'job-uri',
+                'job-name',
+                'job-state',
+                'job-state-reason',
             ];
 
             $content .= $this->buildProperty('requested-attributes', $attributesGroup);
@@ -298,20 +298,20 @@ class JobManager extends ManagerAbstract
         $jobUri = $this->buildProperty('job-uri', $job->getUri());
 
         $content = $this->getVersion() // 1.1  | version-number
-          .chr(0x00).chr(0x09) // Get-Job-Attributes | operation-id
-          .$operationId //           request-id
-          .chr(0x01) // start operation-attributes | operation-attributes-tag
-          .$charset
-          .$language
-          .$jobUri
-          .$username;
+            . chr(0x00) . chr(0x09) // Get-Job-Attributes | operation-id
+            . $operationId //           request-id
+            . chr(0x01) // start operation-attributes | operation-attributes-tag
+            . $charset
+            . $language
+            . $jobUri
+            . $username;
 
         if ($subset) {
             $attributesGroup = [
-              'job-uri',
-              'job-name',
-              'job-state',
-              'job-state-reason',
+                'job-uri',
+                'job-name',
+                'job-state',
+                'job-state-reason',
             ];
 
             $content .= $this->buildProperty('requested-attributes', $attributesGroup);
@@ -324,7 +324,7 @@ class JobManager extends ManagerAbstract
                 case 'all':
                     break;
                 default:
-                    trigger_error('Invalid attribute group: "'.$attributesGroup.'"', E_USER_NOTICE);
+                    trigger_error('Invalid attribute group: "' . $attributesGroup . '"', E_USER_NOTICE);
                     $attributesGroup = '';
                     break;
             }
@@ -361,20 +361,20 @@ class JobManager extends ManagerAbstract
         $deletedAttributes = '';
 
         $content = $this->getVersion() // 1.1  | version-number
-          .chr(0x00).chr(0x14) // Set-Job-Attributes | operation-id
-          .$operationId //           request-id
-          .chr(0x01) // start operation-attributes | operation-attributes-tag
-          .$charset
-          .$language
-          .$jobUri
-          .$username
-          .chr(0x02) // start job-attributes
-          .$jobAttributes // setteds by setAttribute($attribute,$value)
-          .$copies
-          .$sides
-          .$pageRanges
-          .$deletedAttributes
-          .chr(0x03); // end-of-attributes | end-of-attributes-tag
+            . chr(0x00) . chr(0x14) // Set-Job-Attributes | operation-id
+            . $operationId //           request-id
+            . chr(0x01) // start operation-attributes | operation-attributes-tag
+            . $charset
+            . $language
+            . $jobUri
+            . $username
+            . chr(0x02) // start job-attributes
+            . $jobAttributes // setteds by setAttribute($attribute,$value)
+            . $copies
+            . $sides
+            . $pageRanges
+            . $deletedAttributes
+            . chr(0x03); // end-of-attributes | end-of-attributes-tag
 
         $headers = ['Content-Type' => 'application/ipp'];
 
@@ -403,27 +403,27 @@ class JobManager extends ManagerAbstract
         $pageRanges = $this->buildPageRanges($job->getPageRanges());
 
         // todo
-        $operationAttributes = '';//$this->buildOperationAttributes();
+        $operationAttributes = ''; //$this->buildOperationAttributes();
         $jobAttributes = $this->buildProperties($job->getAttributes());
 
         $content = $this->getVersion() // 1.1  | version-number
-          .chr(0x00).chr(0x05) // Create-Job | operation-id
-          .$operationId //           request-id
-          .chr(0x01) // start operation-attributes | operation-attributes-tag
-          .$charset
-          .$language
-          .$printerUri
-          .$username
-          .$jobName
-          .$fidelity
-          .$timeoutAttribute
-          .$operationAttributes
-          .chr(0x02) // start job-attributes | job-attributes-tag
-          .$copies
-          .$sides
-          .$pageRanges
-          .$jobAttributes
-          .chr(0x03); // end-of-attributes | end-of-attributes-tag
+            . chr(0x00) . chr(0x05) // Create-Job | operation-id
+            . $operationId //           request-id
+            . chr(0x01) // start operation-attributes | operation-attributes-tag
+            . $charset
+            . $language
+            . $printerUri
+            . $username
+            . $jobName
+            . $fidelity
+            . $timeoutAttribute
+            . $operationAttributes
+            . chr(0x02) // start job-attributes | job-attributes-tag
+            . $copies
+            . $sides
+            . $pageRanges
+            . $jobAttributes
+            . chr(0x03); // end-of-attributes | end-of-attributes-tag
 
         $headers = ['Content-Type' => 'application/ipp'];
 
@@ -448,16 +448,16 @@ class JobManager extends ManagerAbstract
         $message = '';
 
         $content = $this->getVersion() // 1.1  | version-number
-          .chr(0x00).chr(0x08) // cancel-Job | operation-id
-          .$operationId //           request-id
-          .$requestBodyMalformed
-          .chr(0x01) // start operation-attributes | operation-attributes-tag
-          .$charset
-          .$language
-          .$jobUri
-          .$username
-          .$message
-          .chr(0x03); // end-of-attributes | end-of-attributes-tag
+            . chr(0x00) . chr(0x08) // cancel-Job | operation-id
+            . $operationId //           request-id
+            . $requestBodyMalformed
+            . chr(0x01) // start operation-attributes | operation-attributes-tag
+            . $charset
+            . $language
+            . $jobUri
+            . $username
+            . $message
+            . chr(0x03); // end-of-attributes | end-of-attributes-tag
 
         $headers = ['Content-Type' => 'application/ipp'];
 
@@ -481,15 +481,15 @@ class JobManager extends ManagerAbstract
         $message = '';
 
         $content = $this->getVersion() // 1.1  | version-number
-          .chr(0x00).chr(0x0d) // release-Job | operation-id
-          .$operationId //           request-id
-          .chr(0x01) // start operation-attributes | operation-attributes-tag
-          .$charset
-          .$language
-          .$jobUri
-          .$username
-          .$message
-          .chr(0x03); // end-of-attributes | end-of-attributes-tag
+            . chr(0x00) . chr(0x0d) // release-Job | operation-id
+            . $operationId //           request-id
+            . chr(0x01) // start operation-attributes | operation-attributes-tag
+            . $charset
+            . $language
+            . $jobUri
+            . $username
+            . $message
+            . chr(0x03); // end-of-attributes | end-of-attributes-tag
 
         $headers = ['Content-Type' => 'application/ipp'];
 
@@ -514,13 +514,13 @@ class JobManager extends ManagerAbstract
         $message = '';
 
         $untilStrings = [
-          'no-hold',
-          'day-time',
-          'evening',
-          'night',
-          'weekend',
-          'second-shift',
-          'third-shift',
+            'no-hold',
+            'day-time',
+            'evening',
+            'night',
+            'weekend',
+            'second-shift',
+            'third-shift',
         ];
 
         if (!in_array($until, $untilStrings)) {
@@ -528,22 +528,22 @@ class JobManager extends ManagerAbstract
         }
 
         $holdUntil = chr(0x42) // keyword
-          .$this->builder->formatStringLength('job-hold-until')
-          .'job-hold-until'
-          .$this->builder->formatStringLength($until)
-          .$until;
+            . $this->builder->formatStringLength('job-hold-until')
+            . 'job-hold-until'
+            . $this->builder->formatStringLength($until)
+            . $until;
 
         $content = $this->getVersion() // 1.1  | version-number
-          .chr(0x00).chr(0x0C) // hold-Job | operation-id
-          .$operationId //           request-id
-          .chr(0x01) // start operation-attributes | operation-attributes-tag
-          .$charset
-          .$language
-          .$username
-          .$jobUri
-          .$message
-          .$holdUntil
-          .chr(0x03); // end-of-attributes | end-of-attributes-tag
+            . chr(0x00) . chr(0x0C) // hold-Job | operation-id
+            . $operationId //           request-id
+            . chr(0x01) // start operation-attributes | operation-attributes-tag
+            . $charset
+            . $language
+            . $username
+            . $jobUri
+            . $message
+            . $holdUntil
+            . chr(0x03); // end-of-attributes | end-of-attributes-tag
 
         $headers = ['Content-Type' => 'application/ipp'];
 
@@ -567,15 +567,15 @@ class JobManager extends ManagerAbstract
         $message = '';
 
         $content = $this->getVersion() // 1.1  | version-number
-          .chr(0x00).chr(0x0E) // release-Job | operation-id
-          .$operationId //           request-id
-          .chr(0x01) // start operation-attributes | operation-attributes-tag
-          .$charset
-          .$language
-          .$jobUri
-          .$username
-          .$message
-          .chr(0x03); // end-of-attributes | end-of-attributes-tag
+            . chr(0x00) . chr(0x0E) // release-Job | operation-id
+            . $operationId //           request-id
+            . chr(0x01) // start operation-attributes | operation-attributes-tag
+            . $charset
+            . $language
+            . $jobUri
+            . $username
+            . $message
+            . chr(0x03); // end-of-attributes | end-of-attributes-tag
 
         $headers = ['Content-Type' => 'application/ipp'];
 
@@ -602,23 +602,23 @@ class JobManager extends ManagerAbstract
         $mimeMediaType = $this->buildProperty('document-format', $part['mimeType'], true);
 
         // @todo
-        $operationAttributes = '';//$this->buildOperationAttributes();
+        $operationAttributes = ''; //$this->buildOperationAttributes();
         $lastDocument = $this->buildProperty('last-document', $isLast);
 
         $content = $this->getVersion() // 1.1  | version-number
-          .chr(0x00).chr(0x06) // Send-Document | operation-id
-          .$operationId //           request-id
-          .chr(0x01) // start operation-attributes | operation-attributes-tag
-          .$charset
-          .$language
-          .$jobUri
-          .$username
-          .$documentName
-          .$fidelity
-          .$mimeMediaType
-          .$operationAttributes
-          .$lastDocument
-          .chr(0x03); // end-of-attributes | end-of-attributes-tag
+            . chr(0x00) . chr(0x06) // Send-Document | operation-id
+            . $operationId //           request-id
+            . chr(0x01) // start operation-attributes | operation-attributes-tag
+            . $charset
+            . $language
+            . $jobUri
+            . $username
+            . $documentName
+            . $fidelity
+            . $mimeMediaType
+            . $operationAttributes
+            . $lastDocument
+            . chr(0x03); // end-of-attributes | end-of-attributes-tag
 
         if ($part['type'] == Job::CONTENT_FILE) {
             $content .= $part['binary'];
@@ -641,7 +641,7 @@ class JobManager extends ManagerAbstract
      */
     protected function fillAttributes(JobInterface $job, $item)
     {
-        $name = empty($item['job-name'][0]) ? 'Job #'.$job->getId() : $item['job-name'][0];
+        $name = empty($item['job-name'][0]) ? 'Job #' . $job->getId() : $item['job-name'][0];
         $copies = empty($item['number-up'][0]) ? 1 : $item['number-up'][0];
 
         $job->setId($item['job-id'][0]);
@@ -688,6 +688,10 @@ class JobManager extends ManagerAbstract
      */
     protected function buildPageRanges($pageRanges)
     {
+        if (empty($pageRanges)) {
+            return '';
+        }
+
         $pageRanges = trim(str_replace('-', ':', $pageRanges));
         $pageRanges = explode(',', $pageRanges);
 
