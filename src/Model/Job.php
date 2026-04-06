@@ -3,7 +3,6 @@
 namespace Smalot\Cups\Model;
 
 use finfo;
-use function GuzzleHttp\Psr7\mimetype_from_filename;
 
 /**
  * Class Job
@@ -261,21 +260,56 @@ class Job implements JobInterface
     /**
      * @param string $filename
      * @param string $name
-     * @param string $mimeType
+     * @param string|null $mimeType
      *
      * @return Job
      */
-    public function addFile($filename, $name = '', $mimeType = 'application/octet-stream')
+    public function addFile($filename, $name = '', $mimeType = null)
     {
         if (empty($name)) {
             $name = basename($filename);
         }
 
+        if ($mimeType === null) {
+            // Support both Guzzle v1 (function) and v2 (static method)
+            if (class_exists('GuzzleHttp\Psr7\MimeType')) {
+                $mimeType = \GuzzleHttp\Psr7\MimeType::fromFilename($filename);
+            } elseif (function_exists('GuzzleHttp\Psr7\mimetype_from_filename')) {
+                $mimeType = \GuzzleHttp\Psr7\mimetype_from_filename($filename);
+            }
+        }
+
+        return $this->addBinary(fopen($filename, 'r'), $name, $mimeType);
+    }
+
+    /**
+     * @param resource $stream
+     * @param string $name
+     * @param string|null $mimeType
+     *
+     * @return Job
+     */
+    public function addBinary($stream, $name, $mimeType = null)
+    {
+        $binary = stream_get_contents($stream);
+
+        if (empty($name)) {
+            $name = 'document_' . bin2hex(random_bytes(8));
+        }
+
+        if ($mimeType === null && class_exists(finfo::class)) {
+            $finfo    = new finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->buffer($binary);
+        }
+
+        $mimeType = is_string($mimeType) ? $mimeType : 'application/octet-stream';
+
         $this->content[] = [
-          'type' => self::CONTENT_FILE,
-          'name' => $name,
-          'mimeType' => $mimeType,
-          'filename' => $filename,
+            'type'     => self::CONTENT_FILE,
+            'name'     => $name,
+            'filename' => $name,
+            'mimeType' => $mimeType,
+            'binary'   => $binary,
         ];
 
         return $this;
