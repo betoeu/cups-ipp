@@ -279,7 +279,12 @@ class Job implements JobInterface
             }
         }
 
-        return $this->addBinary(fopen($filename, 'r'), $name, $mimeType);
+        $handle = fopen($filename, 'r');
+        if ($handle === false) {
+            throw new \RuntimeException('Cannot open file: ' . $filename);
+        }
+
+        return $this->addBinary($handle, $name, $mimeType);
     }
 
     /**
@@ -291,7 +296,15 @@ class Job implements JobInterface
      */
     public function addBinary($stream, $name, $mimeType = null)
     {
+        if (!is_resource($stream)) {
+            throw new \InvalidArgumentException('$stream must be a valid resource.');
+        }
+
         $binary = stream_get_contents($stream);
+
+        if ($binary === false) {
+            throw new \RuntimeException('Failed to read contents from stream.');
+        }
 
         if (empty($name)) {
             $name = 'document_' . bin2hex(random_bytes(8));
@@ -299,7 +312,8 @@ class Job implements JobInterface
 
         if ($mimeType === null && class_exists(finfo::class)) {
             $finfo    = new finfo(FILEINFO_MIME_TYPE);
-            $mimeType = $finfo->buffer($binary);
+            $result   = $finfo->buffer($binary);
+            $mimeType = ($result !== false) ? $result : null;
         }
 
         $mimeType = is_string($mimeType) ? $mimeType : 'application/octet-stream';
@@ -325,10 +339,10 @@ class Job implements JobInterface
     public function addText($text, $name = '', $mimeType = 'text/plain')
     {
         $this->content[] = [
-          'type' => self::CONTENT_TEXT,
-          'name' => $name,
-          'mimeType' => $mimeType,
-          'text' => $text,
+            'type' => self::CONTENT_TEXT,
+            'name' => $name,
+            'mimeType' => $mimeType,
+            'text' => $text,
         ];
 
         return $this;
